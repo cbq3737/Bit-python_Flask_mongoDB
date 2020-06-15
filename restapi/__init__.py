@@ -34,27 +34,43 @@ def upjong():
 
 @app.route("/instar",methods=['POST'])
 def instar():
-    my_db = client['Project']
-    mycol = my_db['insta카페']
+
     json = request.get_json()
-    date1 = json.get('date1')
-    date2 = json.get('date2')
     word = json.get('word')
+    insta = []
+    my_db = client['Project']
+    mycol = my_db[word]
     #날짜시작,끝,태그를 뽑고, 워드카운트로 리스트화
     # my_doc = list(mycol.aggregate([{"$match":{"word":json.get('word')}},{"$unwind": "$wordcount"}, {"$project": {"_id": 0, "word": 0}}, {"$replaceWith": "$wordcount"}]))
-    # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
-    my_doc = mycol.find({"data": date1}, {"_id": 0, "tags": 1})
+   # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
+    num = json.get('num')
 
-    print(my_doc)
+    i=0
+    for i in range(int(num)):
+        q={"data":json.get('date'+str(i))}
+        print("a")
+        print(q)
+    # date1 ="data:"+date
+    # print(date1)
+    # date ='data :2020-06-08,data:2020-06-09'
 
-    insta =[]
-    for i in my_doc:
-        for j in range(len(i['tags'])):
-            insta.append(i['tags'][j])
+    # print(dic)
+        my_doc = mycol.find(q,{"_id":0,"tags":1})
+        #my_doc = mycol.find({"data" : "2020-06-08","data":"2020-06-09"}, {"_id": 0, "tags": 1})
 
-    df = pd.DataFrame(insta, columns=['tags'])
-    tag =df['tags'].value_counts().to_frame()
-    top10 = tag.head(10)
+        # for result in mycol.find({"data":date}):
+        #     print(result)
+
+
+        for i in my_doc:
+            for j in range(len(i['tags'])):
+                insta.append(i['tags'][j])
+
+        df = pd.DataFrame(insta, columns=['tags'])
+        tag =df['tags'].value_counts().to_frame()
+        top10 = tag.head(10)
+        q.clear()
+
 
     a=[]
     for i in range(len(top10.index)):
