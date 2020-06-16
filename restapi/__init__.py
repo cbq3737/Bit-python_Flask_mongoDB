@@ -37,43 +37,32 @@ def instar():
 
     json = request.get_json()
     word = json.get('word')
-    insta = []
     my_db = client['Project']
     mycol = my_db[word]
     #날짜시작,끝,태그를 뽑고, 워드카운트로 리스트화
     # my_doc = list(mycol.aggregate([{"$match":{"word":json.get('word')}},{"$unwind": "$wordcount"}, {"$project": {"_id": 0, "word": 0}}, {"$replaceWith": "$wordcount"}]))
-   # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
-    num = json.get('num')
+    # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
+    num = json.get('num')#map에 포함된 갯수
 
+    insta = []
     i=0
     for i in range(int(num)):
         q={"data":json.get('date'+str(i))}
         print("a")
         print(q)
-    # date1 ="data:"+date
-    # print(date1)
-    # date ='data :2020-06-08,data:2020-06-09'
-
-    # print(dic)
         my_doc = mycol.find(q,{"_id":0,"tags":1})
-        #my_doc = mycol.find({"data" : "2020-06-08","data":"2020-06-09"}, {"_id": 0, "tags": 1})
-
-        # for result in mycol.find({"data":date}):
-        #     print(result)
-
-
+        
         for i in my_doc:
             for j in range(len(i['tags'])):
-                insta.append(i['tags'][j])
+                insta.append(i['tags'][j])#태그들을 따로 배열화하여 저장
 
         df = pd.DataFrame(insta, columns=['tags'])
-        tag =df['tags'].value_counts().to_frame()
+        tag =df['tags'].value_counts().to_frame()#배열화한 데이터들의 갯수를 세주는 함수
         top10 = tag.head(10)
         q.clear()
 
-
     a=[]
-    for i in range(len(top10.index)):
+    for i in range(len(top10.index)): #Dataframe으로 만들어진 count수를 dict화 해준다.
         b ={"tag":top10.index[i],"count":str(top10['tags'][i])}
         a.append(b)
 
@@ -81,6 +70,20 @@ def instar():
     client.close()
     return jsonify(a)
 
+@app.route("/yearchui",methods=['POST'])
+def yearchui():
+    my_db = client['Project']
+    mycol = my_db['yearchui2020']
+    dong = request.get_json()
+
+    my_doc = list(mycol.find({"행정동명":dong.get("dong")},{"_id":0,"m2019예측":1,"m2020예측":1,"상권_코드_명":1}))
+
+    for i in range(len(my_doc)):
+                    print(i)
+
+    print(my_doc)
+    client.close()
+    return jsonify(my_doc)
 
 @app.route("/mongoTest",methods=['POST'])
 def mongoTest():
