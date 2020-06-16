@@ -32,43 +32,83 @@ def upjong():
 
     return jsonify(my_doc)
 
-@app.route("/instar",methods=['POST'])
-def instar():
+# @app.route("/instar",methods=['POST'])
+# def instar():
+#
+#     json = request.get_json()
+#     word = json.get('word')
+#     my_db = client['Project']
+#     mycol = my_db[word]
+#     #날짜시작,끝,태그를 뽑고, 워드카운트로 리스트화
+#     # my_doc = list(mycol.aggregate([{"$match":{"word":json.get('word')}},{"$unwind": "$wordcount"}, {"$project": {"_id": 0, "word": 0}}, {"$replaceWith": "$wordcount"}]))
+#     # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
+#     num = json.get('num')#map에 포함된 갯수
+#
+#     insta = []
+#     i=0
+#     for i in range(int(num)):
+#         q={"data":json.get('date'+str(i))}
+#         print("a")
+#         print(q)
+#         my_doc = mycol.find(q,{"_id":0,"tags":1})
+#
+#         for i in my_doc:
+#             for j in range(len(i['tags'])):
+#                 insta.append(i['tags'][j])#태그들을 따로 배열화하여 저장
+#
+#         df = pd.DataFrame(insta, columns=['tags'])
+#         tag =df['tags'].value_counts().to_frame()#배열화한 데이터들의 갯수를 세주는 함수
+#         top10 = tag.head(10)
+#         q.clear()
+#
+#     a=[]
+#     for i in range(len(top10.index)): #Dataframe으로 만들어진 count수를 dict화 해준다.
+#         b ={"tag":top10.index[i],"count":str(top10['tags'][i])}
+#         a.append(b)
+#
+#     print(a)
+#     client.close()
+#     return jsonify(a)
 
+@app.route("/instar", methods=['POST'])
+def instar():
     json = request.get_json()
     word = json.get('word')
+    print(word)
+    insta = []
     my_db = client['Project']
     mycol = my_db[word]
-    #날짜시작,끝,태그를 뽑고, 워드카운트로 리스트화
-    # my_doc = list(mycol.aggregate([{"$match":{"word":json.get('word')}},{"$unwind": "$wordcount"}, {"$project": {"_id": 0, "word": 0}}, {"$replaceWith": "$wordcount"}]))
-    # my_doc= mycol.find({"word":word,"$or":[{"data":date1},{"data":date2}]},{"_id":0,"tags":1})
-    num = json.get('num')#map에 포함된 갯수
+    num = json.get('num')
+    my_doc1 = mycol.find()
 
-    insta = []
-    i=0
+
+    i = 0
     for i in range(int(num)):
-        q={"data":json.get('date'+str(i))}
+        # q = {data: json.get('date' + str(i))}
+        q = dict(data=json.get('date' + str(i)))
         print("a")
         print(q)
-        my_doc = mycol.find(q,{"_id":0,"tags":1})
-        
-        for i in my_doc:
-            for j in range(len(i['tags'])):
-                insta.append(i['tags'][j])#태그들을 따로 배열화하여 저장
-
-        df = pd.DataFrame(insta, columns=['tags'])
-        tag =df['tags'].value_counts().to_frame()#배열화한 데이터들의 갯수를 세주는 함수
-        top10 = tag.head(10)
+        my_doc = mycol.find(q, {"_id": 0, "tags": 1})
+        for z in my_doc:
+            print(z)
+            for j in range(len(z['tags'])):
+                insta.append(z['tags'][j])
+        print(insta)
         q.clear()
+    df = pd.DataFrame(insta, columns=['tags'])
+    tag = df['tags'].value_counts().to_frame()
+    top10 = tag.head(10)
+    print(top10)
 
-    a=[]
-    for i in range(len(top10.index)): #Dataframe으로 만들어진 count수를 dict화 해준다.
-        b ={"tag":top10.index[i],"count":str(top10['tags'][i])}
+    a = []
+    for qwe in range(len(top10.index)):
+        b = {"tag": top10.index[qwe], "count": str(top10['tags'][qwe])}
         a.append(b)
 
     print(a)
     client.close()
     return jsonify(a)
+
 
 @app.route("/yearchui",methods=['POST'])
 def yearchui():
