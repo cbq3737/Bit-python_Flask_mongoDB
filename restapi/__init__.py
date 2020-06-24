@@ -25,7 +25,7 @@ def get_message(message_id):
 @app.route("/upjong", methods=['POST'])
 def upjong():
     my_db = client['Project']
-    mycol = my_db['alls2']
+    mycol = my_db['alls3']
     value = request.get_json()
     my_doc = list(mycol.find({"class":value.get('classes')},{"_id":0,"dong2":1,"count":1}))
     print(my_doc)
@@ -34,6 +34,23 @@ def upjong():
 
     return jsonify(my_doc)
 
+@app.route("/bunseok", methods=['POST']) #dining
+def bunseok():
+    json = request.get_json()
+    word = json.get('gu')
+    my_db = client['Dining']
+    print(word)
+    word1 = word[:2]
+    print(word1)
+    mycol = my_db['Top3'+word1]
+    my_doc = list(mycol.find({},{"_id": 0}))
+
+    #my_doc = list(mycol.find({"class":value.get('classes')},{"_id":0,"dong2":1,"count":1}))
+    print(my_doc)
+
+    client.close()  # mongoDB닫는것.
+
+    return jsonify(my_doc)
 
 @app.route("/instar", methods=['POST'])
 def instar():
@@ -94,9 +111,6 @@ def yearchui():
     my_doc = list(mycol.find({"행정동명": dong.get("dong")}, {"_id": 0, "월별2019매출예측": 1, "월별2020매출예측": 1,
                                                           "점포_수": 1,"상권_코드_명":1}))
 
-    for i in range(len(my_doc)):
-        print(i)
-
     print(my_doc)
     client.close()
     return jsonify(my_doc)
@@ -111,8 +125,6 @@ def chuigr():
     my_doc = list(
         mycol.find({"동명": dong.get("dong")}, {"_id": 0, "기준_년_코드": 1, "기준_분기_코드": 1, "분기별_매출": 1, "상권_코드_명": 1}))
 
-    for i in range(len(my_doc)):
-        print(i)
 
     print(my_doc)
     client.close()
